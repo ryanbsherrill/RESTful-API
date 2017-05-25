@@ -1,8 +1,3 @@
-/** C.R.U.D.
-* POST => Create
-* GET => Return
-
-*/
 const express = require('express');
 const bodyParser = require('body-parser');
 
