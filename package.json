@@ -9,6 +9,7 @@
   "author": "Ryan <ryanbsherrill@gmail.com>",
   "license": "ISC",
   "dependencies": {
-    "mongodb": "^2.2.27"
+    "mongodb": "^2.2.27",
+    "mongoose": "^4.10.2"
   }
 }
