@@ -9,6 +9,8 @@ const {User} = require('./models/user');
 
 const app = express();
 
+/*CRUD*/
+
 // POST => Create
 app.use(bodyParser.json());
 
@@ -23,6 +25,18 @@ app.post('/todos', (req, res) => {
     res.status(400).send(e);
   });
 });
+
+// GET => Return
+app.get('/todos', (req, res) => {
+  Todo.find().then((todos) => {
+    res.send({todos});
+  }, (e) => {
+    res.status(400).send(e);
+  });
+});
+
+
+
 
 app.listen(3000, () => {
   console.log('Started on port 3000');
