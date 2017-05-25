@@ -1,19 +1,18 @@
-// library
+/** C.R.U.D.
+* POST => Create
+* GET => Return
+
+*/
 const express = require('express');
 const bodyParser = require('body-parser');
 
-// local
 const {mongoose} = require('./db/mongoose');
 const {Todo} = require('./models/todo');
 const {User} = require('./models/user');
 
 const app = express();
 
-/*CRUD*/
-
-// POST => Create
 app.use(bodyParser.json());
-
 app.post('/todos', (req, res) => {
   let todo = new Todo({
     text: req.body.text
@@ -26,7 +25,6 @@ app.post('/todos', (req, res) => {
   });
 });
 
-// GET => Return
 app.get('/todos', (req, res) => {
   Todo.find().then((todos) => {
     res.send({todos});
@@ -34,9 +32,6 @@ app.get('/todos', (req, res) => {
     res.status(400).send(e);
   });
 });
-
-
-
 
 app.listen(3000, () => {
   console.log('Started on port 3000');
