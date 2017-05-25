@@ -9,6 +9,8 @@
   "author": "Ryan <ryanbsherrill@gmail.com>",
   "license": "ISC",
   "dependencies": {
+    "body-parser": "^1.17.2",
+    "express": "^4.15.3",
     "mongodb": "^2.2.27",
     "mongoose": "^4.10.2"
   }
