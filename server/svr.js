@@ -1,3 +1,4 @@
+const _ = require('lodash');
 const express = require('express');
 const bodyParser = require('body-parser');
 const {ObjectID} = require('mongodb');
@@ -48,6 +49,38 @@ app.get('/todos/:id', (req, res) => {
   }).catch((e) => {
     res.status(400).send();
   });
+});
+
+// PATCH Route => UPDATE
+app.patch('/todos/:id', (req, res) => {
+  let id = req.params.id;
+
+  // subset of user inputs
+  let body = _.pick(req.body, ['text', 'completed']);
+
+  // validate
+  if (!ObjectID.isValid(id)) {
+    return res.status(404).send();
+  }
+
+  // update completedAt property
+  if (_.isBoolean(body.completed) && body.completed) {
+    body.completedAt = new Date().getTime();
+  } else {
+    body.completed = false;
+    body.completedAt = null;
+  }
+
+  // call
+  Todo.findByIdAndUpdate(id, {$set: body}, {new: true}).then((todo) => {
+    if (!todo) {
+      return res.status(404).send();
+    }
+
+    res.send({todo});
+  }).catch((e) => {
+    res.status(400).send();
+  })
 });
 
 // DELETE Route => DESTROY

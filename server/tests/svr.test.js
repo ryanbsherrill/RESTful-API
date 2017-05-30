@@ -5,7 +5,7 @@ const {ObjectID} = require('mongodb');
 const {app} = require('./../svr');
 const {Todo} = require('./../models/todo');
 
-const dummyTodos = [{
+let dummyTodos = [{
   _id: new ObjectID(),
   text: 'First test todo'
 }, {
