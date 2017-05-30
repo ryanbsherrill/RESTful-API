@@ -5,6 +5,7 @@ const {ObjectID} = require('mongodb');
 const {app} = require('./../svr');
 const {Todo} = require('./../models/todo');
 
+// TEST DATA
 let testTodos = [{
   _id: new ObjectID(),
   text: 'First test todo'
@@ -18,13 +19,14 @@ let testTodos = [{
   text: 'Third test todo'
 }]
 
+// TEST RESET
 beforeEach((done) => {
   Todo.remove({}).then(() => {
     return Todo.insertMany(testTodos);
   }).then(() => done());
 });
 
-// POST | CREATE
+// POST TESTS
 describe('POST /todos', () => {
   it('should create a new todo', (done) => {
     let text = 'Test todo text';
@@ -49,7 +51,6 @@ describe('POST /todos', () => {
   });
 
   it('should not create todo w/ invalid body data', (done) => {
-
     request(app)
       .post('/todos')
       .send({})
@@ -66,7 +67,7 @@ describe('POST /todos', () => {
   });
 });
 
-// GET | READ
+// GET TESTS (ALL)
 describe('GET /todos', () => {
   it('should get all todos', (done) => {
     request(app)
@@ -79,6 +80,7 @@ describe('GET /todos', () => {
   });
 });
 
+// GET TESTS (BY ID)
 describe('GET /todos/:id', () => {
   it('should return todo doc', (done) => {
     request(app)
@@ -89,13 +91,16 @@ describe('GET /todos/:id', () => {
       })
       .end(done);
   });
+
   it('should return 404 if todo not found', (done) => {
     let hexId = new ObjectID().toHexString();
+
     request(app)
       .get(`/todos/${hexId}`)
       .expect(404)
       .end(done);
   });
+
   it('should return 404 for non-object ids', (done) => {
     request(app)
       .get('/todos/123abc')
@@ -104,9 +109,7 @@ describe('GET /todos/:id', () => {
   });
 });
 
-
-
-
+// PATCH TESTS
 describe('PATCH /todos/:id', () => {
   it('should update the todo', (done) => {
     let hexId = testTodos[0]._id.toHexString();
@@ -126,6 +129,7 @@ describe('PATCH /todos/:id', () => {
       })
       .end(done)
   });
+
   it('should clear completedAt when todo is not completed', (done) => {
     let hexId = testTodos[1]._id.toHexString();
     let text = 'NEW TEXT 2 !!!';
@@ -146,7 +150,7 @@ describe('PATCH /todos/:id', () => {
   });
 });
 
-// DELETE | DESTROY
+// DELETE TESTS
 describe('DELETE /todos/:id', () => {
   it('should remove a todo', (done) => {
     let hexId = testTodos[1]._id.toHexString();
@@ -167,6 +171,7 @@ describe('DELETE /todos/:id', () => {
         }).catch((e) => done(e));
       });
   });
+
   it('should return 404 if todo not found', (done) => {
     let hexId = new ObjectID().toHexString();
     request(app)
@@ -174,6 +179,7 @@ describe('DELETE /todos/:id', () => {
       .expect(404)
       .end(done);
   });
+
   it('should return 404 if object id is invalid', (done) => {
     request(app)
       .get('/todos/123abc')

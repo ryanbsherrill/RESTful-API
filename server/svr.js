@@ -1,3 +1,5 @@
+require('./config/config');
+
 const _ = require('lodash');
 const express = require('express');
 const bodyParser = require('body-parser');
@@ -8,11 +10,11 @@ const {Todo} = require('./models/todo');
 const {User} = require('./models/user');
 
 const app = express();
-const port = process.env.PORT || 3000;
+const port = process.env.PORT;
 
 app.use(bodyParser.json());
 
-// POST Route => CREATE
+// POST ROUTE => CREATE
 app.post('/todos', (req, res) => {
   let todo = new Todo({
     text: req.body.text
@@ -25,6 +27,7 @@ app.post('/todos', (req, res) => {
   });
 });
 
+// GET ROUTE (ALL) => READ
 app.get('/todos', (req, res) => {
   Todo.find().then((todos) => {
     res.send({todos});
@@ -33,7 +36,7 @@ app.get('/todos', (req, res) => {
   });
 });
 
-// GET Route => READ
+// GET ROUTE (BY ID) => READ
 app.get('/todos/:id', (req, res) => {
   let id = req.params.id;
 
@@ -51,19 +54,17 @@ app.get('/todos/:id', (req, res) => {
   });
 });
 
-// PATCH Route => UPDATE
+// PATCH ROUTE => UPDATE
 app.patch('/todos/:id', (req, res) => {
   let id = req.params.id;
-
   // subset of user inputs
   let body = _.pick(req.body, ['text', 'completed']);
 
-  // validate
   if (!ObjectID.isValid(id)) {
     return res.status(404).send();
   }
 
-  // update completedAt property
+  // UPDATE => 'completedAt' PROPERTY
   if (_.isBoolean(body.completed) && body.completed) {
     body.completedAt = new Date().getTime();
   } else {
@@ -71,19 +72,17 @@ app.patch('/todos/:id', (req, res) => {
     body.completedAt = null;
   }
 
-  // call
   Todo.findByIdAndUpdate(id, {$set: body}, {new: true}).then((todo) => {
     if (!todo) {
       return res.status(404).send();
     }
-
     res.send({todo});
   }).catch((e) => {
     res.status(400).send();
   })
 });
 
-// DELETE Route => DESTROY
+// DELETE ROUTE => DESTROY
 app.delete('/todos/:id', (req, res) => {
   let id = req.params.id;
 
