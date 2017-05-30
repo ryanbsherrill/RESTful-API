@@ -5,12 +5,14 @@ const {ObjectID} = require('mongodb');
 const {app} = require('./../svr');
 const {Todo} = require('./../models/todo');
 
-let dummyTodos = [{
+let testTodos = [{
   _id: new ObjectID(),
   text: 'First test todo'
 }, {
   _id: new ObjectID(),
-  text: 'Second test todo'
+  text: 'Second test todo',
+  completed: true,
+  completedAt: 333
 }, {
   _id: new ObjectID(),
   text: 'Third test todo'
@@ -18,10 +20,11 @@ let dummyTodos = [{
 
 beforeEach((done) => {
   Todo.remove({}).then(() => {
-    return Todo.insertMany(dummyTodos);
+    return Todo.insertMany(testTodos);
   }).then(() => done());
 });
 
+// POST | CREATE
 describe('POST /todos', () => {
   it('should create a new todo', (done) => {
     let text = 'Test todo text';
@@ -63,6 +66,7 @@ describe('POST /todos', () => {
   });
 });
 
+// GET | READ
 describe('GET /todos', () => {
   it('should get all todos', (done) => {
     request(app)
@@ -78,10 +82,10 @@ describe('GET /todos', () => {
 describe('GET /todos/:id', () => {
   it('should return todo doc', (done) => {
     request(app)
-      .get(`/todos/${dummyTodos[0]._id.toHexString()}`)
+      .get(`/todos/${testTodos[0]._id.toHexString()}`)
       .expect(200)
       .expect((res) => {
-        expect(res.body.todo.text).toBe(dummyTodos[0].text);
+        expect(res.body.todo.text).toBe(testTodos[0].text);
       })
       .end(done);
   });
@@ -100,9 +104,52 @@ describe('GET /todos/:id', () => {
   });
 });
 
+
+
+
+describe('PATCH /todos/:id', () => {
+  it('should update the todo', (done) => {
+    let hexId = testTodos[0]._id.toHexString();
+    let text = 'NEW TEXT 1 ??';
+
+    request(app)
+      .patch(`/todos/${hexId}`)
+      .send({
+        completed: true,
+        text
+      })
+      .expect(200)
+      .expect((res) => {
+        expect(res.body.todo.text).toBe(text);
+        expect(res.body.todo.completed).toBe(true);
+        expect(res.body.todo.completedAt).toBeA('number');
+      })
+      .end(done)
+  });
+  it('should clear completedAt when todo is not completed', (done) => {
+    let hexId = testTodos[1]._id.toHexString();
+    let text = 'NEW TEXT 2 !!!';
+
+    request(app)
+      .patch(`/todos/${hexId}`)
+      .send({
+        completed: false,
+        text
+      })
+      .expect(200)
+      .expect((res) => {
+        expect(res.body.todo.text).toBe(text);
+        expect(res.body.todo.completed).toBe(false);
+        expect(res.body.todo.completedAt).toNotExist();
+      })
+      .end(done);
+  });
+});
+
+// DELETE | DESTROY
 describe('DELETE /todos/:id', () => {
   it('should remove a todo', (done) => {
-    let hexId = dummyTodos[1]._id.toHexString();
+    let hexId = testTodos[1]._id.toHexString();
 
     request(app)
       .delete(`/todos/${hexId}`)
