@@ -14,7 +14,7 @@ const port = process.env.PORT;
 
 app.use(bodyParser.json());
 
-// POST ROUTE => CREATE
+// POST TODOS ROUTE => CREATE
 app.post('/todos', (req, res) => {
   let todo = new Todo({
     text: req.body.text
@@ -27,7 +27,7 @@ app.post('/todos', (req, res) => {
   });
 });
 
-// GET ROUTE (ALL) => READ
+// GET TODOS ROUTE (ALL) => READ
 app.get('/todos', (req, res) => {
   Todo.find().then((todos) => {
     res.send({todos});
@@ -36,7 +36,7 @@ app.get('/todos', (req, res) => {
   });
 });
 
-// GET ROUTE (BY ID) => READ
+// GET TODOS ROUTE (BY ID) => READ
 app.get('/todos/:id', (req, res) => {
   let id = req.params.id;
 
@@ -54,7 +54,7 @@ app.get('/todos/:id', (req, res) => {
   });
 });
 
-// PATCH ROUTE => UPDATE
+// PATCH TODOS ROUTE => UPDATE
 app.patch('/todos/:id', (req, res) => {
   let id = req.params.id;
   // subset of user inputs
@@ -82,7 +82,7 @@ app.patch('/todos/:id', (req, res) => {
   })
 });
 
-// DELETE ROUTE => DESTROY
+// DELETE TODOS ROUTE => DESTROY
 app.delete('/todos/:id', (req, res) => {
   let id = req.params.id;
 
@@ -97,6 +97,20 @@ app.delete('/todos/:id', (req, res) => {
     res.status(200).send({todo});
   }).catch((e) => {
     res.status(400).send();
+  });
+});
+
+// POST USERS ROUTE => CREATE
+app.post('/users', (req, res) => {
+  let body = _.pick(req.body, ['email', 'password']);
+  let user = new User(body);
+
+  return user.save().then(() => {
+    return user.generateAuthToken();
+  }).then((token) => {
+    res.header('x-auth', token).send(user);
+  }).catch((e) => {
+    res.status(400).send(e);
   });
 });
 
