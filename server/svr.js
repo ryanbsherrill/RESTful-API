@@ -3,11 +3,12 @@ require('./config/config');
 const _ = require('lodash');
 const express = require('express');
 const bodyParser = require('body-parser');
-const {ObjectID} = require('mongodb');
 
+const {ObjectID} = require('mongodb');
 const {mongoose} = require('./db/mongoose');
 const {Todo} = require('./models/todo');
 const {User} = require('./models/user');
+const {authenticate} = require('./middleware/authenticate');
 
 const app = express();
 const port = process.env.PORT;
@@ -57,13 +58,11 @@ app.get('/todos/:id', (req, res) => {
 // PATCH TODOS ROUTE => UPDATE
 app.patch('/todos/:id', (req, res) => {
   let id = req.params.id;
-  // subset of user inputs
   let body = _.pick(req.body, ['text', 'completed']);
 
   if (!ObjectID.isValid(id)) {
     return res.status(404).send();
   }
-
   // UPDATE => 'completedAt' PROPERTY
   if (_.isBoolean(body.completed) && body.completed) {
     body.completedAt = new Date().getTime();
@@ -100,12 +99,17 @@ app.delete('/todos/:id', (req, res) => {
   });
 });
 
+// GET USERS (PRIVATE) ROUTE => READ
+app.get('/users/me', authenticate, (req, res) => {
+  res.send(req.user);
+});
+
 // POST USERS ROUTE => CREATE
 app.post('/users', (req, res) => {
   let body = _.pick(req.body, ['email', 'password']);
   let user = new User(body);
 
-  return user.save().then(() => {
+  user.save().then(() => {
     return user.generateAuthToken();
   }).then((token) => {
     res.header('x-auth', token).send(user);
