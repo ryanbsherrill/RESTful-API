@@ -1,10 +1,19 @@
 let env = process.env.NODE_ENV || 'development';
 
-if (env === 'development') {
-  process.env.PORT = 3000;
-  process.env.MONGODB_URI = 'mongodb://localhost:27017/TodoApp';
+if (env === 'development' || env === 'test') {
+  let config = require('./config.json');
+  let envConfig = config[env];
+
+  Object.keys(envConfig).forEach((key) => {
+    process.env[key] = envConfig[key];
+  });
 }
-else if (env === 'test') {
-  process.env.PORT = 3000;
-  process.env.MONGODB_URI = 'mongodb://localhost:27017/TodoAppTest';
-}
+
+/**
+* only develoment and test environment variables should be
+  configured locally -- via some file
+* production environment vars are always configured via heroku
+  command line tools or heroku web app
+* when you require JSON, it automatically parses it into a
+  JS obj
+*/
